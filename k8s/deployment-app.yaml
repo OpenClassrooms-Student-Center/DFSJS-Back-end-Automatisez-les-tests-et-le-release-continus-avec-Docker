@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workshop-organizer-app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: workshop-organizer-app
+  template:
+    metadata:
+      labels:
+        app: workshop-organizer-app
+    spec:
+      containers:
+      - name: workshop-organizer-app
+        # TODO: add the image of the application from the gitlab registry
+        ports:
+        - containerPort: 3000
+        env:
+        - name: MONGO_URI
+          # TODO: check the MongoDB connection URI
+          value: mongodb://$(MONGO_USERNAME):$(MONGO_PASSWORD)@workshop-organizer-db:27017/workshopsdb?authSource=admin
+        - name: MONGO_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: workshop-organizer-db-secret
+              key: username
+        # TODO: add the MongoDB password environment variable
+        - name: PORT
+          value: "3000"
+        - name: NODE_ENV
+          value: production
+      # TODO: define imagePullSecrets to use a docker-registry secret and authorize Kubernetes
+      # to pull images from private gitlab registry.
+      # I found this article to help you : https://medium.com/p/aae52787074a
